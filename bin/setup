@@ -1,0 +1,48 @@
+#!/bin/zsh
+#
+# Source this file, do not execute it.
+
+year="${1:-`TZ=EST date +%Y`}"
+printf -v day "%02d" "${2:-`TZ=EST date +%d`}"
+
+AOC_BIN="${0:a:h}"
+AOC_ROOT="${AOC_BIN:h}"
+AOC_YEAR="${AOC_ROOT}/${year}"
+
+if [[ ! -d "${AOC_YEAR}" ]]; then
+    printf "The directory %s does not exist. Shall I create it? " "${AOC_YEAR}"
+    if read -q; then
+        echo ""
+    else
+        echo ""
+        echo "Aborting setup"
+        return 1
+    fi
+
+    echo "Creating ${AOC_YEAR}"
+    mkdir -p ${AOC_YEAR}
+
+    for d in `seq -w 1 25`
+    do
+        mkdir $AOC_YEAR/$d
+        sed -e "s/DayXX/Day${d}/g" <$AOC_ROOT/template/DayXX.py >$AOC_YEAR/$d/Day${d}.py
+        echo Created $AOC_YEAR/$d/Day${d}.py
+    done
+fi
+
+if (( day < 1 || day > 25 )); then
+    day="01"
+fi
+
+AOC_DAY=${AOC_YEAR}/${day}
+
+if [[ -f ${AOC_ROOT}/.session_key ]]; then
+    AOC_SESSION_KEY=`head -n 1 ${AOC_ROOT}/.session_key`
+fi
+
+alias fetch_input="python3 ${AOC_BIN}/fetch_input.py"
+
+cd ${AOC_DAY}
+
+export AOC_ROOT AOC_BIN AOC_YEAR AOC_DAY
+unset year day d
