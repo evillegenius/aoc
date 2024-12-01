@@ -11,7 +11,8 @@ class Day01:
         self.input = None
 
         self.lines = []
-        self.grid = None
+        self.a = []
+        self.b = []
         
         self.ParseArgs()
         self.ParseInput()
@@ -29,26 +30,20 @@ class Day01:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
-
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
-
+        for line in self.lines:
+            itemA, itemB = line.split()
+            self.a.append(int(itemA))
+            self.b.append(int(itemB))
 
     def Part1(self):
-        answer = 0
+        self.a.sort()
+        self.b.sort()
+
+        answer = sum(abs(itemA - itemB) for itemA, itemB in zip(self.a, self.b))
         return answer
 
     def Part2(self):
-        answer = 0
+        answer = sum(itemA * self.b.count(itemA) for itemA in self.a)
         return answer
     
 if __name__ == '__main__':
