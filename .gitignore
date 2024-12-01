@@ -1,1 +1,6 @@
 /.session_key
+input
+*.o
+*.dSYM
+Day[012][0-9]
+.DS_Store
