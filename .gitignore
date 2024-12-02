@@ -1,6 +1,10 @@
 /.session_key
+/2023/
 input
 *.o
 *.dSYM
 Day[012][0-9]
 .DS_Store
+\#*#
+.#*
+*~
