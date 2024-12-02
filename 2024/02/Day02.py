@@ -3,8 +3,6 @@
 <Problem description here>
 """
 import sys
-import re
-import numpy as np
 
 class Day02:
     def __init__(self):
@@ -29,26 +27,44 @@ class Day02:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.vals = [list(map(int, line.split())) for line in self.lines]
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+    def test(self, row):
+        diffs = [row[i+1] - row[i] for i in range(len(row) - 1)]
+        small = min(diffs)
+        big = max(diffs)
 
+        if small * big < 0:
+            # different sign
+            return 0
+
+        if 1 <= small <= big <= 3 or -3 <= small <= big <= -1:
+            return 1
+
+        return 0
 
     def Part1(self):
         answer = 0
+
+        for row in self.vals:
+            answer += self.test(row)
+
         return answer
 
     def Part2(self):
         answer = 0
+        for row in self.vals:
+            if self.test(row):
+                answer += 1
+                continue
+
+            # The row is fine if it succeeds with any single item removed.  Just
+            # try each possible removal until it succeeds or we've tried them
+            # all
+            for i in range(len(row)):
+                if self.test(row[:i] + row[i+1:]):
+                    answer +=1
+                    break
         return answer
     
 if __name__ == '__main__':
