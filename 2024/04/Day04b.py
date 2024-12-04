@@ -34,6 +34,11 @@ class Day04b:
         self.width = len(self.lines[0])
 
     def countoverlapping(self, pattern, text):
+        """pattern.findall does not work because it finds non-overlapping
+        matches and our matches span multiple lines and do overlap. Just search
+        repeatedly starting just after the start of the previous match.
+
+        """
         count = 0
         start = 0
         while match := pattern.search(text, start):
@@ -49,10 +54,10 @@ class Day04b:
         wrap = '.' * (self.width-1)
         diag1 = re.compile(rf'X{wrap}M{wrap}A{wrap}S|S{wrap}A{wrap}M{wrap}X'
                            , re.DOTALL)
-        wrap += '.'
+        wrap = '.' * self.width
         vertical = re.compile(rf'X{wrap}M{wrap}A{wrap}S|S{wrap}A{wrap}M{wrap}X',
                               re.DOTALL)
-        wrap += '.'
+        wrap = '.' * (self.width + 1)
         diag2 = re.compile(rf'X{wrap}M{wrap}A{wrap}S|S{wrap}A{wrap}M{wrap}X',
                            re.DOTALL)
 
@@ -66,6 +71,8 @@ class Day04b:
     def Part2(self):
         answer = 0
 
+        # Wrap size is self.width + (1 for the /n) - (3 for the characters
+        # already matched)
         wrap = '.' * (self.width - 2)
         xmas = re.compile(rf'(M.M{wrap}.A.{wrap}S.S)|'
                           rf'(M.S{wrap}.A.{wrap}M.S)|'
