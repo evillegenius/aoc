@@ -4,7 +4,6 @@
 """
 import sys
 import re
-import numpy as np
 
 class Day03:
     def __init__(self):
@@ -29,26 +28,36 @@ class Day03:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.mulPat = re.compile(r'mul\((\d{1,3}),(\d{1,3})\)')
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
-
+        self.condPat = re.compile(r"mul\((\d{1,3}),(\d{1,3})\)|don't\(\)|do\(\)")
 
     def Part1(self):
         answer = 0
+        for line in self.lines:
+            for match in self.mulPat.finditer(line):
+                answer += int(match[1]) * int(match[2])
+                
         return answer
 
     def Part2(self):
         answer = 0
+        
+        doIt = True
+        for line in self.lines:
+            for match in self.condPat.finditer(line):
+                if match[0].startswith('mul'):
+                   if doIt:
+                       answer += int(match[1]) * int(match[2])
+                   else:
+                       pass
+                elif match[0] == "don't()":
+                    doIt = False
+                elif match[0] == "do()":
+                    doIt = True
+                else:
+                    print(f'Pattern fail: {match[0]}')
+                       
         return answer
     
 if __name__ == '__main__':
