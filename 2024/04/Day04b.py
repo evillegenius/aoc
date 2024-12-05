@@ -11,7 +11,6 @@ class Day04b:
 
         self.content = None
         self.lines = []
-        self.grid = None
         
         self.ParseArgs()
         self.ParseInput()
@@ -33,11 +32,11 @@ class Day04b:
         self.height = len(self.lines)
         self.width = len(self.lines[0])
 
-    def countoverlapping(self, pattern, text):
-        """pattern.findall does not work because it finds non-overlapping
-        matches and our matches span multiple lines and do overlap. Just search
-        repeatedly starting just after the start of the previous match.
-
+    def countMatches(self, pattern, text):
+        """pattern.findall does not find all patterns because they overlap in the
+        linear string that it's searching. So this finds each one and then starts
+        searching again one character past the start rather than one past the end
+        of the previous match.
         """
         count = 0
         start = 0
@@ -61,10 +60,10 @@ class Day04b:
         diag2 = re.compile(rf'X{wrap}M{wrap}A{wrap}S|S{wrap}A{wrap}M{wrap}X',
                            re.DOTALL)
 
-        answer = (self.countoverlapping(horiz, self.contents) +
-                  self.countoverlapping(diag1, self.contents) +
-                  self.countoverlapping(vertical, self.contents) +
-                  self.countoverlapping(diag2, self.contents))
+        answer = (self.countMatches(horiz, self.contents) +
+                  self.countMatches(diag1, self.contents) +
+                  self.countMatches(vertical, self.contents) +
+                  self.countMatches(diag2, self.contents))
 
         return answer
 
@@ -79,7 +78,7 @@ class Day04b:
                           rf'(S.S{wrap}.A.{wrap}M.M)|'
                           rf'(S.M{wrap}.A.{wrap}S.M)', re.DOTALL)
 
-        answer = self.countoverlapping(xmas, self.contents)
+        answer = self.countMatches(xmas, self.contents)
 
         return answer
     
