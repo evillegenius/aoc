@@ -3,8 +3,8 @@
 <Problem description here>
 """
 import sys
-import re
 import numpy as np
+import functools
 
 class Day05:
     def __init__(self):
@@ -27,29 +27,59 @@ class Day05:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.lines = self.contents.split('\n')
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
-
+        self.rules = set()
+        self.updates = []
+        foundBlank = False
+        for line in self.lines:
+            if not line:
+                foundBlank = True
+            elif foundBlank:
+                self.updates.append(list(map(int, line.split(','))))
+            else:
+                self.rules.add(tuple(map(int, line.split('|'))))
 
     def Part1(self):
         answer = 0
+        for update in self.updates:
+            good = False
+            for before, after in self.rules:
+                if before in update and after in update:
+                    if update.index(before) > update.index(after):
+                        break
+            else:
+                good = True
+
+            if good:
+                answer += update[len(update)//2]
+                
         return answer
 
     def Part2(self):
         answer = 0
+        answer = 0
+        for update in self.updates:
+            good = False
+            for before, after in self.rules:
+                if before in update and after in update:
+                    if update.index(before) > update.index(after):
+                        break
+            else:
+                # Made it to the end, this one is good.
+                continue
+
+            # Ok, this one needs to be reordered.
+            order = lambda a, b: -1 if (a, b) in self.rules else +1
+            key = functools.cmp_to_key(order)
+
+            update.sort(key=key)
+            answer += update[len(update) // 2]
+
         return answer
+
     
 if __name__ == '__main__':
     problem = Day05()
