@@ -3,7 +3,6 @@
 <Problem description here>
 """
 import sys
-import numpy as np
 import functools
 
 class Day05:
