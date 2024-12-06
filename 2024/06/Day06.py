@@ -66,9 +66,9 @@ class Day06:
         coords = np.argwhere(self.grid > 1)
         pos = Point(*coords[0])
         delta = dirs[self.grid[pos]]
-        visited = set()
+        self.route = set()
         while True:
-            visited.add(pos)
+            self.route.add(pos)
             newPos = pos + delta
             if not ((0 <= newPos.row < self.height) and (0 <= newPos.col < self.width)):
                 break
@@ -77,7 +77,7 @@ class Day06:
                 continue
             pos = newPos
 
-        answer = len(visited)
+        answer = len(self.route)
 
         return answer
 
@@ -87,31 +87,29 @@ class Day06:
         startPos = Point(*coords[0])
         startDelta = dirs[self.grid[startPos]]
         results = []
-        for obsRow in range(0, self.height):
-            for obsCol in range(0, self.width):
-                obsPoint = Point(obsRow, obsCol)
-                if self.grid[obsPoint] != 0:
-                    continue
-                self.grid[obsPoint] = 1
-                pos = startPos
-                delta = startDelta
-                visited = set()  # Set of (pos, delta)
+        for obsPoint in self.route:
+            if self.grid[obsPoint] != 0:
+                continue
+            self.grid[obsPoint] = 1
+            pos = startPos
+            delta = startDelta
+            visited = set()  # Set of (pos, delta)
 
-                while True:
-                    visited.add((pos, delta))
-                    newPos = pos + delta
-                    if not ((0 <= newPos.row < self.height) and (0 <= newPos.col < self.width)):
-                        break
-                    if self.grid[newPos] == 1:
-                        newPos = pos
-                        delta = rotate[delta]
-                    if (newPos, delta) in visited:
-                        # We found a loop. Record it.
-                        answer += 1
-                        print(f'Loop: {obsPoint}')
-                        break
-                    pos = newPos
-                self.grid[obsPoint] = 0
+            while True:
+                visited.add((pos, delta))
+                newPos = pos + delta
+                if not ((0 <= newPos.row < self.height) and (0 <= newPos.col < self.width)):
+                    break
+                if self.grid[newPos] == 1:
+                    newPos = pos
+                    delta = rotate[delta]
+                if (newPos, delta) in visited:
+                    # We found a loop. Record it.
+                    answer += 1
+                    print(f'Loop: {obsPoint}')
+                    break
+                pos = newPos
+            self.grid[obsPoint] = 0
 
         return answer
     
