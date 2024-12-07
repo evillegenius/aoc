@@ -29,28 +29,19 @@ class Day07:
         self.lines = self.contents.split('\n')
 
 
-    def dfs1(self, ans, numbers, tmp=None):
+    def dfs1(self, ans, working, numbers):
+        if working > ans:
+            return False
+
         if not numbers:
-            return tmp == ans
-        
-        if tmp is None:
-            # First time
-            t = numbers[0] + numbers[1]
-            if self.dfs1(ans, numbers[2:], t):
-                return True
-            else:
-                t = numbers[0] * numbers[1]
-                return self.dfs1(ans, numbers[2:], t)
+            return working == ans
+
+        w = working + numbers[0]
+        if self.dfs1(ans, w, numbers[1:]):
+            return True
         else:
-            # Not first time
-            if tmp > ans:
-                return False
-            t = tmp + numbers[0]
-            if self.dfs1(ans, numbers[1:], t):
-                return True
-            else:
-                t = tmp * numbers[0]
-                return self.dfs1(ans, numbers[1:], t)
+            w = working * numbers[0]
+            return self.dfs1(ans, w, numbers[1:])
         
     def Part1(self):
         answer = 0
@@ -60,42 +51,28 @@ class Day07:
             ans = int(ans)
             numbers = list(map(int, numbers.split()))
 
-            if self.dfs1(ans, numbers):
+            if self.dfs1(ans, numbers[0], numbers[1:]):
                 answer += ans
 
         return answer
 
-    def dfs2(self, ans, numbers, tmp=None):
+    def dfs2(self, ans, working, numbers):
+        if working > ans:
+            return False
+
         if not numbers:
-            return tmp == ans
-        
-        if tmp is None:
-            # First time
-            t = numbers[0] + numbers[1]
-            if self.dfs2(ans, numbers[2:], t):
-                return True
-            else:
-                t = numbers[0] * numbers[1]
-                if self.dfs2(ans, numbers[2:], t):
-                    return True
-                else:
-                    t = int(f'{numbers[0]}{numbers[1]}')
-                    return self.dfs2(ans, numbers[2:], t)
-            
+            return working == ans
+
+        w = working + numbers[0]
+        if self.dfs2(ans, w, numbers[1:]):
+            return True
         else:
-            # Not the first time
-            if tmp > ans:
-                return False
-            t = tmp + numbers[0]
-            if self.dfs2(ans, numbers[1:], t):
+            w = working * numbers[0]
+            if self.dfs2(ans, w, numbers[1:]):
                 return True
             else:
-                t = tmp * numbers[0]
-                if self.dfs2(ans, numbers[1:], t):
-                    return True
-                else:
-                    t = int(f'{tmp}{numbers[0]}')
-                    return self.dfs2(ans, numbers[1:], t)
+                w = int(f'{working}{numbers[0]}')
+                return self.dfs2(ans, w, numbers[1:])
         
     def Part2(self):
         answer = 0
@@ -105,7 +82,7 @@ class Day07:
             ans = int(ans)
             numbers = list(map(int, numbers.split()))
 
-            if self.dfs2(ans, numbers):
+            if self.dfs2(ans, numbers[0], numbers[1:]):
                 answer += ans
 
         return answer
