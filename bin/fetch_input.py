@@ -8,8 +8,10 @@ import argparse
 
 class FetchInput:
     def __init__(self, args=None):
-        # Default to AdventOfCode time (EST)
-        os.environ['TZ'] = 'EST'
+        # AdventOfCode runs on EST, but if I want to setup in advance, I'd
+        # like the date to be a bit ahead of EST. Use UTC so we're 5 hours
+        # ahead of AdventOfCode time.
+        os.environ['TZ'] = 'UTC'
         time.tzset()
 
         gameTime = time.localtime()
