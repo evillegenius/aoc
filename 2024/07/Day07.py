@@ -2,14 +2,11 @@
 """
 <Problem description here>
 """
-import sys
-import re
-import numpy as np
-
 class Day07:
     def __init__(self):
         self.input = None
 
+        self.contents = None
         self.lines = []
         self.grid = None
         
@@ -27,28 +24,90 @@ class Day07:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
-
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+        self.lines = self.contents.split('\n')
 
 
+    def dfs1(self, ans, numbers, tmp=None):
+        if not numbers:
+            return tmp == ans
+        
+        if tmp is None:
+            # First time
+            t = numbers[0] + numbers[1]
+            if self.dfs1(ans, numbers[2:], t):
+                return True
+            else:
+                t = numbers[0] * numbers[1]
+                return self.dfs1(ans, numbers[2:], t)
+        else:
+            # Not first time
+            if tmp > ans:
+                return False
+            t = tmp + numbers[0]
+            if self.dfs1(ans, numbers[1:], t):
+                return True
+            else:
+                t = tmp * numbers[0]
+                return self.dfs1(ans, numbers[1:], t)
+        
     def Part1(self):
         answer = 0
+
+        for line in self.lines:
+            ans, numbers = line.split(':')
+            ans = int(ans)
+            numbers = list(map(int, numbers.split()))
+
+            if self.dfs1(ans, numbers):
+                answer += ans
+
         return answer
 
+    def dfs2(self, ans, numbers, tmp=None):
+        if not numbers:
+            return tmp == ans
+        
+        if tmp is None:
+            # First time
+            t = numbers[0] + numbers[1]
+            if self.dfs2(ans, numbers[2:], t):
+                return True
+            else:
+                t = numbers[0] * numbers[1]
+                if self.dfs2(ans, numbers[2:], t):
+                    return True
+                else:
+                    t = int(f'{numbers[0]}{numbers[1]}')
+                    return self.dfs2(ans, numbers[2:], t)
+            
+        else:
+            # Not the first time
+            if tmp > ans:
+                return False
+            t = tmp + numbers[0]
+            if self.dfs2(ans, numbers[1:], t):
+                return True
+            else:
+                t = tmp * numbers[0]
+                if self.dfs2(ans, numbers[1:], t):
+                    return True
+                else:
+                    t = int(f'{tmp}{numbers[0]}')
+                    return self.dfs2(ans, numbers[1:], t)
+        
     def Part2(self):
         answer = 0
+
+        for line in self.lines:
+            ans, numbers = line.split(':')
+            ans = int(ans)
+            numbers = list(map(int, numbers.split()))
+
+            if self.dfs2(ans, numbers):
+                answer += ans
+
         return answer
     
 if __name__ == '__main__':
