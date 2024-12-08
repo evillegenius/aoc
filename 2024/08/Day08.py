@@ -3,7 +3,7 @@
 <Problem description here>
 """
 import numpy as np
-import fractions
+import math
 
 """
 P and V (point and vector) classes intended to be used with numpy grids. As such
@@ -123,22 +123,19 @@ class Day08:
                 for j in range(i+1, len(locs)):
                     jPos = P(*locs[j])
                     delta = jPos - iPos
-                    if delta.dr == 0:
-                        for col in range(self.width):
-                            antiNodes.add(P(jPos.row, col))
-                        continue
-                    # XXX: Round to 8 digits to solve math errors.
-                    line = lambda row: round((row - iPos.row) * ((jPos.col - iPos.col) / (jPos.row - iPos.row)) + iPos.col, 8)
-                    assert line(iPos.row) == iPos.col  # debugging
-                    assert line(jPos.row) == jPos.col  # debugging
-                    for row in range(self.height):
-                        col = line(row)
-                        if 0 <= col < self.width and col == int(col):
-                            antiNodes.add(P(row, int(col)))
+                    reduceBy = math.gcd(delta.dr, delta.dc)
+                    reduced = V(delta.dr // reduceBy, delta.dc // reduceBy)
 
+                    anti = jPos
+                    while (0 <= anti.row < self.height and 0 <= anti.col < self.width):
+                        antiNodes.add(anti)
+                        anti = anti + reduced
 
-        import pprint
-        pprint.pprint(antiNodes)
+                    anti = jPos - reduced
+                    while (0 <= anti.row < self.height and 0 <= anti.col < self.width):
+                        antiNodes.add(anti)
+                        anti = anti - reduced
+
         answer = len(antiNodes)
         return answer
     
