@@ -2,7 +2,6 @@
 """
 <Problem description here>
 """
-import numpy as np
 import math
 
 """
@@ -53,7 +52,7 @@ class Day08:
 
         self.contents = None
         self.lines = []
-        self.grid = None
+        self.locs = {}
         self.freqs = set()
         
         self.ParseArgs()
@@ -74,20 +73,18 @@ class Day08:
 
         self.lines = self.contents.split('\n')
 
+
         ########################################################################
         # If the puzzle is not grid/map based, delete these lines.
         self.height = len(self.lines)
         self.width = len(self.lines[0])
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
         for row, line in enumerate(self.lines):
             for col, ch in enumerate(line):
-                value = 0 if ch == '.' else ord(ch)
-                self.grid[row, col] = value
-
+                if ch == '.':
+                    continue
+                self.locs.setdefault(ch, []).append(P(row, col))
                 self.freqs.add(ch)
-
-        self.freqs.remove('.')
         #
         ########################################################################
 
@@ -97,11 +94,11 @@ class Day08:
 
         self.antiNodes = set()
         for freq in self.freqs:
-            locs = np.argwhere(self.grid == ord(freq))
+            locs = self.locs[freq]
             for i in range(0, len(locs) - 1):
-                iPos = P(*locs[i])
+                iPos = locs[i]
                 for j in range(i+1, len(locs)):
-                    jPos = P(*locs[j])
+                    jPos = locs[j]
                     delta = jPos - iPos
                     anti1 = jPos + delta
                     anti2 = iPos - delta
@@ -117,11 +114,11 @@ class Day08:
         answer = 0
         antiNodes = set()
         for freq in self.freqs:
-            locs = np.argwhere(self.grid == ord(freq))
+            locs = self.locs[freq]
             for i in range(0, len(locs) - 1):
-                iPos = P(*locs[i])
+                iPos = locs[i]
                 for j in range(i+1, len(locs)):
-                    jPos = P(*locs[j])
+                    jPos = locs[j]
                     delta = jPos - iPos
                     reduceBy = math.gcd(delta.dr, delta.dc)
                     reduced = V(delta.dr // reduceBy, delta.dc // reduceBy)
