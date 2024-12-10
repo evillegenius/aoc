@@ -5,7 +5,7 @@
 # AdventOfCode runs in EST, but we'd like our date calculations to be
 # a bit ahead of that so we can setup early. Use UTC.
 year="${1:-`TZ=UTC date +%Y`}"
-printf -v day "%02d" "${2:-`TZ=EST date +%d`}"
+printf -v day "%02d" "${2:-`TZ=UTC date +%d`}"
 
 AOC_BIN="${0:a:h}"
 AOC_ROOT="${AOC_BIN:h}"
