@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding:utf-8; line-length:80 -*-
 
-import sys
 import os
 import time
 import argparse
