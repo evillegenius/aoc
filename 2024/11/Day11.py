@@ -2,9 +2,7 @@
 """
 <Problem description here>
 """
-import sys
-import re
-import numpy as np
+import functools
 
 class Day11:
     def __init__(self):
@@ -20,6 +18,7 @@ class Day11:
         import argparse
 
         parser = argparse.ArgumentParser('Day11')
+        parser.add_argument('-b', '--blinks', type=int, default=25)
         parser.add_argument('input', nargs='?', default='input')
 
         parser.parse_args(args, self)
@@ -27,24 +26,32 @@ class Day11:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.lines = self.contents.split('\n')
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+        self.stones = map(int, self.lines[0].split())
 
-
+    @functools.cache
+    def Blink(self, stone, n):
+        if n == 0:
+            # print(stone)
+            return 1
+        
+        if stone == 0:
+            return self.Blink(1, n - 1)
+        elif len(str(stone)) % 2 == 0:
+            text = str(stone)
+            stone1 = int(text[:len(text) // 2])
+            stone2 = int(text[len(text) // 2:])
+            return self.Blink(stone1, n - 1) + self.Blink(stone2, n - 1)
+        else:
+            return self.Blink(stone * 2024, n - 1)
+        
     def Part1(self):
         answer = 0
+        for stone in self.stones:
+            answer += self.Blink(stone, self.blinks)
         return answer
 
     def Part2(self):
