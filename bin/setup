@@ -7,11 +7,19 @@
 year="${1:-`TZ=UTC date +%Y`}"
 printf -v day "%02d" "${2:-`TZ=UTC date +%d`}"
 
+if (( day < 1 || day > 25 )); then
+    day="01"
+fi
+
 AOC_BIN="${0:a:h}"
 AOC_ROOT="${AOC_BIN:h}"
-AOC_YEAR="${AOC_ROOT}/${year}"
+AOC_YEAR="${year}"
+AOC_DAY="${day}"
 
-if [[ ! -d "${AOC_YEAR}" ]]; then
+AOC_YEAR_DIR="${AOC_ROOT}/${AOC_YEAR}"
+AOC_DAY_DIR="${AOC_YEAR_DIR}/${AOC_DAY}"
+
+if [[ ! -d "${AOC_YEAR_DIR}" ]]; then
     printf "The directory %s does not exist. Shall I create it? " "${AOC_YEAR}"
     if read -q; then
         echo ""
@@ -24,19 +32,23 @@ if [[ ! -d "${AOC_YEAR}" ]]; then
     echo "Creating ${AOC_YEAR}"
     mkdir -p ${AOC_YEAR}
 
-    for d in `seq -w 1 25`
-    do
-        mkdir $AOC_YEAR/$d
-        sed -e "s/DayXX/Day${d}/g" <$AOC_ROOT/template/DayXX.py >$AOC_YEAR/$d/Day${d}.py
-        echo Created $AOC_YEAR/$d/Day${d}.py
-    done
+    # for d in `seq -w 1 25`
+    # do
+    #     mkdir $AOC_YEAR/$d
+    #     sed -e "s/DayXX/Day${d}/g" <$AOC_ROOT/template/DayXX.py >$AOC_YEAR/$d/Day${d}.py
+    #     echo Created $AOC_YEAR/$d/Day${d}.py
+    # done
 fi
 
-if (( day < 1 || day > 25 )); then
-    day="01"
+if [[ ! -d "${AOC_DAY_DIR}" ]]; then
+    echo "Creating ${AOC_DAY_DIR}"
+    mkdir -p "${AOC_DAY_DIR}"
 fi
 
-AOC_DAY=${AOC_YEAR}/${day}
+if [[ ! -f "${AOC_DAY_DIR}/Day${day}.py" ]]; then
+    sed -e "s/DayXX/Day${day}/g" <$AOC_ROOT/template/DayXX.py >$AOC_YEAR/$day/Day${day}.py
+    echo "Created $AOC_DAY_DIR/Day${day}.py"
+fi
 
 if [[ -f ${AOC_ROOT}/.session_key ]]; then
     AOC_SESSION_KEY=`head -n 1 ${AOC_ROOT}/.session_key`
@@ -44,7 +56,7 @@ fi
 
 alias fetch_input="python3 ${AOC_BIN}/fetch_input.py"
 
-cd ${AOC_DAY}
+cd ${AOC_DAY_DIR}
 
-export AOC_ROOT AOC_BIN AOC_YEAR AOC_DAY
+export AOC_ROOT AOC_BIN AOC_YEAR_DIR AOC_DAY_DIR AOC_YEAR AOC_DAY
 unset year day d
