@@ -10,9 +10,10 @@ class DayXX:
     def __init__(self):
         self.input = None
 
+        self.contents = None
         self.lines = []
         self.grid = None
-        
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -27,7 +28,9 @@ class DayXX:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
+
+        self.lines = self.contents.split('\n')
 
         ########################################################################
         # If the puzzle is not grid/map based, delete these lines.
@@ -50,10 +53,10 @@ class DayXX:
     def Part2(self):
         answer = 0
         return answer
-    
+
 if __name__ == '__main__':
     problem = DayXX()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
