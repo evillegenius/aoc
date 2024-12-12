@@ -62,6 +62,3 @@ if __name__ == '__main__':
 
     answer2 = problem.Part2()
     print(f'Answer 2: {answer2}')
-
-
-
