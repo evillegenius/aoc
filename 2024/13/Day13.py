@@ -2,9 +2,7 @@
 """
 <Problem description here>
 """
-import sys
 import re
-import numpy as np
 
 class Day13:
     def __init__(self):
@@ -15,6 +13,8 @@ class Day13:
         
         self.ParseArgs()
         self.ParseInput()
+        self.buttonPat = re.compile(r'Button ([AB]): X\+(\d+), Y\+(\d+)$')
+        self.prizePat = re.compile(r'Prize: X=(\d+), Y=(\d+)$')
 
     def ParseArgs(self, args=None):
         import argparse
@@ -27,29 +27,42 @@ class Day13:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.lines = self.contents.split('\n')
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+    def Solve(self, offset):
+        answer = 0
+        ax = ay = bx = by = px = py = 0
+        for line in self.lines:
+            if match := self.buttonPat.match(line):
+                button, x, y = match.groups()
+                x, y = int(x), int(y)
+                if button == 'A':
+                    ax, ay = x, y
+                else:
+                    bx, by = x, y
+            elif match := self.prizePat.match(line):
+                px, py = list(map(int, match.groups()))
+                px += offset
+                py += offset
+                aNum = (by * px - bx * py)
+                aDen = (by * ax - bx * ay)
+                bNum = (ay * px - ax * py)
+                bDen = (ay * bx - ax * by)
+                if aNum % aDen == 0 and bNum % bDen == 0:
+                    a = aNum // aDen
+                    b = bNum // bDen
+                    cost = 3 * a + b
+                    answer += cost
 
-
+        return answer
+    
     def Part1(self):
-        answer = 0
-        return answer
-
+        return self.Solve(0)
+    
     def Part2(self):
-        answer = 0
-        return answer
+        return self.Solve(10000000000000)
     
 if __name__ == '__main__':
     problem = Day13()
