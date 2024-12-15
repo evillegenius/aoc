@@ -62,7 +62,7 @@ class V(NamedTuple):
         return V(-self.dy, -self.dx)
 
     def __xor__(self, v: 'V'):
-        """Dot product"""
+        """Cross product"""
         return self.dr * v.dr + self.dc * v.dc
 
     def __abs__(self):
