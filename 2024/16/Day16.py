@@ -189,10 +189,37 @@ class Day16:
     def Part1(self):
         answer = 0
         
-        answer = self.AStar(self.startPos, self.startDir, self.goalPos)
+        q = set(self.floor)
+        entry = [0, self.startPos, self.startDir]
+        heap = [entry]
+        heapIndex = dict()
+        heapIndex[self.startPos, self.startDir] = entry
+        dist = {}
+        dist[self.startPos] = 0
+        prev = {}
 
-        self.answer1 = answer
-        return answer
+        while heap:
+            _, pos, dir = heapq.heappop(heap)
+            q.discard(pos)
+
+            for d in directions:
+                neighbor = pos + d
+                if neighbor in q:
+                    cost = 1 if d == dir else 1001
+                    tmpDist = dist[pos] + cost
+                    if tmpDist < dist.get(neighbor, math.inf):
+                        prev[neighbor] = pos
+                        dist[neighbor] = tmpDist
+                        if (neighbor, d) in heapIndex:
+                            heapIndex[neighbor, d][0] = tmpDist
+                            heapq.heapify(heap)
+                        else:
+                            entry = [tmpDist, neighbor, d]
+                            heapq.heappush(heap, entry)
+                            heapIndex[neighbor, d] = entry
+
+        self.answer1 = dist[self.goalPos]
+        return self.answer1
 
 
 
