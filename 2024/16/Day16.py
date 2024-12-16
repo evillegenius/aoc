@@ -221,49 +221,92 @@ class Day16:
         self.answer1 = dist[self.goalPos]
         return self.answer1
 
-
-
-        # for pos in self.floor
-
-        # for pos in self.floor:
-        #     if pos == self.startPos:
-        #         q.add(pos, 0)
-        #     q.add(pos, math.inf)
-
-        # pos = self.startPos
-        # dir = self.startDir
-        # while q:
-        #     pos, dist = q.pop()
-        #     if pos == self.goalPos:
-        #         return dist
-
-        #     for d in directions:
-        #         neighbor = pos + d
-        #         if neighbor in q:
-        #             cost = 1 if d == dir else 1001
-        #             if dist + cost < q.dist(neighbor):
-        #                 q.add(neighbor, dist + cost)
-
-        
-    def Recurse(self, pos, dir, score=0, visited=None):
-        if visited is None:
-            visited = dict()
-
-        visited[pos, dir] = score
-
-        for d in directions:
-            neighbor = pos + d
-            if neighbor in self.floor:
-                cost = 1 if d == dir else 1001
-                if score + cost > self.answer1:
-                    continue
-                if score + cost <= visited.get((neighbor, d), math.inf):
-                    self.Recurse(neighbor, d, score + cost, visited)
-
-                
     def Part2(self):
         answer = 0
-        # Find all paths with score self.answer1
+        # a "state" is a position velocity pair
+        startState = self.startPos, self.startDir
+        q = set()
+        for pos in self.floor:
+            for d in directions:
+                q.add((pos, d))
+        entry = [0, startState]
+        heap = [entry]
+        heapIndex = dict()
+        heapIndex[startState] = entry
+        dist = {}
+        dist[startState] = 0
+        prev = {}
+
+        while heap:
+            _, state = heapq.heappop(heap)
+            q.discard(state)
+            heapIndex.pop(state)
+
+            pos, dir = state
+            # Possible neighbors are one stpe forward or turn in place
+            neighbors  = [((pos + dir, dir), 1)]
+            neighbors += [((pos, d), 1000) for d in directions]
+
+            for nState, nCost in neighbors:
+                if nState in q:
+                    tmpDist = dist[state] + nCost
+                    if tmpDist < dist.get(nState, math.inf):
+                        prev[nState] = state
+                        dist[nState] = tmpDist
+                        if nState in heapIndex:
+                            heapIndex[nState][0] = tmpDist
+                            heapq.heapify(heap)
+                        else:
+                            entry = [tmpDist, nState]
+                            heapq.heappush(heap, entry)
+                            heapIndex[nState] = entry
+
+        answers = [(dist.get((self.goalPos, d), math.inf), (self.goalPos, d))
+                   for d in directions]
+        
+        bestScore, bestState = min(answers)
+
+        visited = set()
+        todo = set([bestState])
+
+        while todo:
+            state = todo.pop()
+            if state in visited:
+                continue
+            visited.add(state)
+
+            pos, dir = state
+            # Possible neighbors are one stpe forward or turn in place
+            neighbors  = [((pos - dir, dir), 1)]
+            neighbors += [((pos, d), 1000) for d in directions]
+
+            for nState, nCost in neighbors:
+                if nState in dist and dist[nState] == (dist[state] - nCost):
+                    # This neighbor is on a minimum path
+                    todo.add(nState)
+
+        # Count only unique positions
+        visitedPos = {pos for pos, dir in visited}
+
+        answer = len(visitedPos)
+            # if nPos in self.floor:
+            #     tmpDist = 1 + dist[state]
+            #     if tmpDi
+            # for d in directions:
+            #     neighbor = pos + d
+            #     if neighbor in q:
+            #         cost = 1 if d == dir else 1001
+            #         tmpDist = dist[pos] + cost
+            #         if tmpDist < dist.get(neighbor, math.inf):
+            #             prev[neighbor] = pos
+            #             dist[neighbor] = tmpDist
+            #             if (neighbor, d) in heapIndex:
+            #                 heapIndex[neighbor, d][0] = tmpDist
+            #                 heapq.heapify(heap)
+            #             else:
+            #                 entry = [tmpDist, neighbor, d]
+            #                 heapq.heappush(heap, entry)
+            #                 heapIndex[neighbor, d] = entry
 
         return answer
     
