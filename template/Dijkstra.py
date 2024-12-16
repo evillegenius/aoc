@@ -1,4 +1,4 @@
-l"""
+"""
 Skeleton implementation of Dijkstra algorithm.
 """
 
