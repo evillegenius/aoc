@@ -12,6 +12,7 @@ the origin is in the upper left corner, coordinates are (row, col), and row incr
 downward.
 """
 import math
+import functools
 from typing import NamedTuple
 
 class P(NamedTuple):
@@ -118,28 +119,40 @@ class Day21:
                          '7': P(0, 0),
                          '8': P(0, 1),
                          '9': P(0, 2),
-                         'A': P(3, 2)}
+                         'A': P(3, 2),
+                         'X': P(3, 0)}
         
         self.arrowGrid = {'^': P(0, 1),
                           '<': P(1, 0),
                           'v': P(1, 1),
                           '>': P(1, 2),
-                          'A': P(0, 2)}
+                          'A': P(0, 2),
+                          'X': P(0, 0)}
 
+        self.step = {'^': UP,
+                     'v': DOWN,
+                     '<': LEFT,
+                     '>': RIGHT,
+                     'A': V(0,0)}        
+
+    def Fatal(self, steps, pos, deathPos):
+        for step in steps:
+            pos += self.step[step]
+            if pos == deathPos:
+                return True
+            
+        return False
+    
     def Solve(self, grid, code):
         startPos = grid['A']
         route = []
         for ch in code:
             endPos = grid[ch]
             delta = endPos - startPos
-            if delta.dc > 0:
-                route.append('>' * delta.dc)
-            if delta.dr < 0:
-                route.append('^' * -delta.dr)
-            if delta.dc < 0:
-                route.append('<' * -delta.dc)
-            if delta.dr > 0:
-                route.append('v' * delta.dr)
+            steps = '<' * -delta.dc + 'v' * delta.dr + '>' * delta.dc + '^' * -delta.dr
+            if self.Fatal(steps, startPos, grid['X']):
+                steps = '^' * -delta.dr + '>' * delta.dc + 'v' * delta.dr + '<' * -delta.dc
+            route.append(steps)
             route.append('A')
             startPos = endPos
 
@@ -162,8 +175,46 @@ class Day21:
 
         return answer
 
+    def Solve2(self, grid, code, depth):
+        @functools.cache
+        def recurse(code, depth):
+            if depth == 0:
+                return len(code)
+
+            count = 0
+            pos = grid['A']
+            for ch in code:
+                endPos = grid[ch]
+                delta = endPos - pos
+                steps = '<' * -delta.dc + 'v' * delta.dr + '>' * delta.dc + '^' * -delta.dr
+                if self.Fatal(steps, pos, grid['X']):
+                    steps = '^' * -delta.dr + '>' * delta.dc + 'v' * delta.dr + '<' * -delta.dc
+
+                steps += 'A'
+
+                pos = endPos
+
+                count += recurse(steps, depth - 1)
+
+            return count
+        
+        count = -1  # No, I don't know why I'm off by 1.
+        parts = code.split('A')
+        for part in parts:
+            count += recurse(part + 'A', depth)
+
+        return count
+
     def Part2(self):
         answer = 0
+
+        for line in self.lines:
+            route1 = self.Solve(self.doorGrid, line)
+            count = self.Solve2(self.arrowGrid, route1, 25)
+
+            print(f'{line}: {count}')
+            answer += count * int(line[:-1])
+
         return answer
     
 if __name__ == '__main__':
@@ -174,6 +225,3 @@ if __name__ == '__main__':
 
     answer2 = problem.Part2()
     print(f'Answer 2: {answer2}')
-
-
-

@@ -23,3 +23,17 @@ A1:        ^   A
 +---+---+---+
 | < | v | > |
 +---+---+---+
+
+
+
+code3 = '<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A'      64
+code2 = '   <   A > A  v <<   AA >  ^ AA > A  v  AA ^ A   < v  AAA >  ^ A'      28
+code1 = '       ^   A         <<      ^^   A     >>   A        vvv      A'      14
+code0 = '           3                      7          9                 A'       4
+aoc/2024/21 on  Day16a [$!?] via 🐍 v3.9.5 took 13s 
+%  cd /Users/jra/work/AdventOfCode/aoc/2024/21 ; /usr/bin/env /usr/bin/python3 /Users/jra/.vscode/extensions/ms-python.debugpy-2024.14.0-darwin-arm64/bundled/libs/debugpy/adapter/../../debugpy/la
+uncher 49698 -- /Users/jra/work/AdventOfCode/aoc/2024/21/Encode.py  
+code3 = '<<vA>>^AvA^A<<vA>>^AA<<vA>A>^AAvAA^<A>A<vA>^AA<A>A<<vA>A>^AAAvA^<A>A'   68
+code2 = '   <   A > A   <   AA   < v  AA >>  ^ A  v  AA ^ A   < v  AAA >  ^ A'   28
+code1 = '       ^   A       ^^        <<       A     >>   A        vvv      A'   14
+code0 = '           3                          7          9                 A'    4
