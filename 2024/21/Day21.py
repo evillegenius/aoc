@@ -6,6 +6,85 @@ import sys
 import re
 import numpy as np
 
+"""
+P and V (point and vector) classes intended to be used with numpy grids. As such
+the origin is in the upper left corner, coordinates are (row, col), and row increases
+downward.
+"""
+import math
+from typing import NamedTuple
+
+class P(NamedTuple):
+    """
+    Point in a numpy grid.
+    """
+    row: 'int'
+    col: 'int'
+
+    def __add__(self, v: 'V'):
+        return P(self.row + v.dr, self.col + v.dc)
+
+    def __sub__(self, rhs: 'P|V'):
+        if isinstance(rhs, P):
+            return V(self.row - rhs.row, self.col - rhs.col)
+        else:
+            return P(self.row - rhs.dr, self.col - rhs.dc)
+
+    def __mod__(self, v: 'V'):
+        """Modulo operator, good for wrapping around into bounds"""
+        return P(self.row % v.dr, self.col % v.dc)
+
+    def __str__(self):
+        return f'P({self.row}, {self.col})'
+
+class V(NamedTuple):
+    """
+    A vector in a numpy grid.
+    """
+    dr: 'int'
+    dc: 'int'
+
+    def __add__(self, rhs: 'V|P'):
+        if isinstance(rhs, P):
+            return P(self.dr + rhs.row, self.dc + rhs.col)
+        else:
+            return V(self.dr + rhs.dr, self.dc + rhs.dc)
+
+    def __sub__(self, v: 'V'):
+        return V(self.dr - v.rd, self.dc - v.dc)
+
+    def __mul__(self, rhs: 'int|V'):
+        """Scalar multiplication or dot product"""
+        if isinstance(rhs, 'V'):
+            return self.dr * rhs.dr + self.dy * rhs.dy
+
+        return V(self.dr * rhs, self.dc * rhs)
+
+    def __rmul__(self, lhs: 'int'):
+        return V(lhs * self.dr, lhs * self.dc)
+
+    def __floordiv__(self, x: int):
+        return V(self.dr // x, self.dr // x)
+
+    def __neg__(self):
+        return V(-self.dy, -self.dx)
+
+    def __xor__(self, v: 'V'):
+        """Cross product"""
+        return self.dr * v.dr + self.dc * v.dc
+
+    def __abs__(self):
+        """Return the vector's magnitude or length"""
+        return math.sqrt(self.dr * self.dr + self.dc * self.dc)
+
+    def Right(self):
+        return V(self.dc, -self.dr)
+
+    def Left(self):
+        return V(-self.dc, self.dr)
+    
+DIRECTIONS = RIGHT, UP, LEFT, DOWN = V(0, 1), V(-1, 0), V(0, -1), V(1, 0)
+
 class Day21:
     def __init__(self):
         self.input = None
@@ -29,22 +108,58 @@ class Day21:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.doorGrid = {'0': P(3, 1),
+                         '1': P(2, 0),
+                         '2': P(2, 1),
+                         '3': P(2, 2),
+                         '4': P(1, 0),
+                         '5': P(1, 1),
+                         '6': P(1, 2),
+                         '7': P(0, 0),
+                         '8': P(0, 1),
+                         '9': P(0, 2),
+                         'A': P(3, 2)}
+        
+        self.arrowGrid = {'^': P(0, 1),
+                          '<': P(1, 0),
+                          'v': P(1, 1),
+                          '>': P(1, 2),
+                          'A': P(0, 2)}
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+    def Solve(self, grid, code):
+        startPos = grid['A']
+        route = []
+        for ch in code:
+            endPos = grid[ch]
+            delta = endPos - startPos
+            if delta.dc > 0:
+                route.append('>' * delta.dc)
+            if delta.dr < 0:
+                route.append('^' * -delta.dr)
+            if delta.dc < 0:
+                route.append('<' * -delta.dc)
+            if delta.dr > 0:
+                route.append('v' * delta.dr)
+            route.append('A')
+            startPos = endPos
 
+        route = ''.join(route)
+        # print(f'{code}: {route}')
 
+        return route
+    
     def Part1(self):
         answer = 0
+        for line in self.lines:
+            route1 = self.Solve(self.doorGrid, line)
+            route2 = self.Solve(self.arrowGrid, route1)
+            route3 = self.Solve(self.arrowGrid, route2)
+            print(f'{line}:')
+            print(f'{len(route1):6}: {route1}')
+            print(f'{len(route2):6}: {route2}')
+            print(f'{len(route3):6}: {route3}')
+            answer += len(route3) * int(line[:-1])
+
         return answer
 
     def Part2(self):
