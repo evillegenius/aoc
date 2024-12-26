@@ -10,7 +10,7 @@ class Day24:
 
         self.lines = []
         self.grid = None
-        
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -79,7 +79,7 @@ class Day24:
                 self.ancestors[wire].update(op[::2])
 
             return self.ancestors[wire]
-        
+
         for wire in self.wires:
             findAncestors(wire)
 
@@ -96,7 +96,7 @@ class Day24:
                 assert False
 
         return self.wires[wire]
-            
+
     def Part1(self):
         answer = 0
         outputs = sorted((wire for wire in self.wires if wire.startswith('z')), reverse=True)
@@ -130,7 +130,7 @@ class Day24:
                 else:
                     assert False
             return wires[wire]
-        
+
         z = 0
         for bit, wire in enumerate(self.zWires):
             if _eval(wire):
@@ -175,7 +175,7 @@ class Day24:
             badBits.update(test(1<<bit, 0))
             badBits.update(test(0, 1<<bit))
             badBits.update(test(1<<bit, 1<<bit))
-        
+
         if badBits:
             print('The following bits are bad:')
             for bb in sorted(badBits):
@@ -184,10 +184,10 @@ class Day24:
             answer = ','.join(sorted(self.swaps))
 
         return answer
-    
+
 if __name__ == '__main__':
     problem = Day24()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
