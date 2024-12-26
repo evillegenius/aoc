@@ -2,9 +2,7 @@
 """
 <Problem description here>
 """
-import sys
-import re
-import numpy as np
+import functools
 
 class Day19:
     def __init__(self):
@@ -12,7 +10,7 @@ class Day19:
 
         self.lines = []
         self.grid = None
-        
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -27,38 +25,58 @@ class Day19:
 
     def ParseInput(self):
         with open(self.input) as input:
-            self.lines = input.read().strip().split('\n')
+            self.contents = input.read().strip()
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.lines = self.contents.split('\n')
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+        self.towels = set(self.lines[0].split(', '))
 
+        self.patterns = self.lines[2:]
+
+    @functools.cache
+    def test(self, pattern):
+        if not pattern:
+            return True
+        for end in range(1, len(pattern)+1):
+            if pattern[:end] in self.towels:
+                if self.test(pattern[end:]):
+                    return True
+
+        return False
 
     def Part1(self):
         answer = 0
+
+        for pattern in self.patterns:
+            if self.test(pattern):
+                answer += 1
+
         return answer
+
+    @functools.cache
+    def test2(self, pattern):
+        if not pattern:
+            return 1
+        count = 0
+        for end in range(1, len(pattern)+1):
+            if pattern[:end] in self.towels:
+                count += self.test2(pattern[end:])
+
+        return count
 
     def Part2(self):
         answer = 0
+
+        for pattern in self.patterns:
+            answer += self.test2(pattern)
+
         return answer
-    
+
 if __name__ == '__main__':
     problem = Day19()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
     answer2 = problem.Part2()
     print(f'Answer 2: {answer2}')
-
-
-
