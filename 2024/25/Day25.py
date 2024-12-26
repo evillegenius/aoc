@@ -12,7 +12,7 @@ class Day25:
 
         self.lines = []
         self.grid = None
-        
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -29,31 +29,42 @@ class Day25:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.keys = []
+        self.locks = []
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+        i = 0
+        dest = None
+        for i in range(0, len(self.lines), 8):
+            if self.lines[i] == '#####':
+                dest = self.locks
+            elif self.lines[i] == '.....':
+                dest = self.keys
+            else:
+                assert False
 
+            pattern = [0, 0, 0, 0, 0]
+            for line in self.lines[i+1:i+6]:
+                for i, ch in enumerate(line):
+                    if ch == '#':
+                        pattern[i] += 1
+
+            dest.append(pattern)
 
     def Part1(self):
         answer = 0
+        for lock in self.locks:
+            for key in self.keys:
+                if max(map(sum, zip(lock, key))) <= 5:
+                    answer += 1
         return answer
 
     def Part2(self):
-        answer = 0
+        answer = "n/a"
         return answer
-    
+
 if __name__ == '__main__':
     problem = Day25()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
