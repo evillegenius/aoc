@@ -389,7 +389,7 @@ After appropriately resizing this map, the robot would push around these boxes a
     ##....[]....##
     ##..........##
     ##..........##
-    ##############
+    ##############fe
 
 This warehouse also uses GPS to locate the boxes. For these larger boxes, distances are measured from the edge of the map to the closest edge of the box in question. So, the box shown below has a distance of 1 from the top edge of the map and 5 from the left edge of the map, resulting in a GPS coordinate of 100 * 1 + 5 = 105.
 
