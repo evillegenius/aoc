@@ -2,9 +2,7 @@
 """
 <Problem description here>
 """
-import sys
-import re
-import numpy as np
+from collections import Counter
 
 class Day22:
     def __init__(self):
@@ -12,7 +10,8 @@ class Day22:
 
         self.lines = []
         self.grid = None
-        
+        self.seq = {}
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -29,31 +28,53 @@ class Day22:
         with open(self.input) as input:
             self.lines = input.read().strip().split('\n')
 
-        ########################################################################
-        # If the puzzle is not grid/map based, delete these lines.
-        gridKey = {'.': 0, '#': 1, 'O': 2}
-        self.height = len(self.lines)
-        self.width = len(self.lines[0])
+        self.seeds = list(map(int, self.lines))
 
-        self.grid = np.zeros((self.height, self.width), dtype=int)
-        for row, line in enumerate(self.lines):
-            for col, ch in enumerate(line):
-                self.grid[row, col] = gridKey[ch]
-        #
-        ########################################################################
+    def prng(self, state):
+        state ^= state << 6
+        state &= 16777215
+        state ^= state >> 5
+        state &= 16777215
+        state ^= state << 11
+        state &= 16777215
 
+        return state
 
     def Part1(self):
         answer = 0
+        for seed in self.seeds:
+            self.seq[seed] = [seed]
+            state = seed
+            for _ in range(2000):
+                state = self.prng(state)
+                # Save sequences for part 2
+                self.seq[seed].append(state)
+
+            # print(f'{seed}: {state}')
+
+            answer += state
         return answer
 
     def Part2(self):
+        bananas = Counter()
         answer = 0
+        for seed, seq in self.seq.items():
+            prices = tuple(map(lambda x: x % 10, seq))
+            diffs = tuple(prices[i] - prices[i-1] for i in range(1, 2000))
+            offers = {}
+            for i in range(1, 1996):
+                key = diffs[i:i+4]
+                offers.setdefault(key, prices[i+4])
+                offers.setdefault
+            bananas.update(offers)
+
+        best = bananas.most_common(5)
+        answer = best[0][1]
         return answer
-    
+
 if __name__ == '__main__':
     problem = Day22()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
