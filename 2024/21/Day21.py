@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-<Problem description here>
-"""
-import sys
-import re
-import numpy as np
 
 """
 P and V (point and vector) classes intended to be used with numpy grids. As such
@@ -83,7 +77,7 @@ class V(NamedTuple):
 
     def Left(self):
         return V(-self.dc, self.dr)
-    
+
 DIRECTIONS = RIGHT, UP, LEFT, DOWN = V(0, 1), V(-1, 0), V(0, -1), V(1, 0)
 
 class Day21:
@@ -92,7 +86,7 @@ class Day21:
 
         self.lines = []
         self.grid = None
-        
+
         self.ParseArgs()
         self.ParseInput()
 
@@ -121,7 +115,7 @@ class Day21:
                          '9': P(0, 2),
                          'A': P(3, 2),
                          'X': P(3, 0)}
-        
+
         self.arrowGrid = {'^': P(0, 1),
                           '<': P(1, 0),
                           'v': P(1, 1),
@@ -133,16 +127,16 @@ class Day21:
                      'v': DOWN,
                      '<': LEFT,
                      '>': RIGHT,
-                     'A': V(0,0)}        
+                     'A': V(0,0)}
 
     def Fatal(self, steps, pos, deathPos):
         for step in steps:
             pos += self.step[step]
             if pos == deathPos:
                 return True
-            
+
         return False
-    
+
     def Solve(self, grid, code):
         startPos = grid['A']
         route = []
@@ -160,7 +154,7 @@ class Day21:
         # print(f'{code}: {route}')
 
         return route
-    
+
     def Part1(self):
         answer = 0
         for line in self.lines:
@@ -175,33 +169,31 @@ class Day21:
 
         return answer
 
-    def Solve2(self, grid, code, depth):
-        @functools.cache
-        def recurse(code, depth):
-            if depth == 0:
-                return len(code)
+    @functools.cache
+    def Solve2(self, code, depth):
+        grid = self.arrowGrid if code[0] in "<>^v" else self.doorGrid
 
-            count = 0
-            pos = grid['A']
-            for ch in code:
-                endPos = grid[ch]
-                delta = endPos - pos
-                steps = '<' * -delta.dc + 'v' * delta.dr + '>' * delta.dc + '^' * -delta.dr
-                if self.Fatal(steps, pos, grid['X']):
-                    steps = '^' * -delta.dr + '>' * delta.dc + 'v' * delta.dr + '<' * -delta.dc
+        if depth == 0:
+            return len(code)
 
-                steps += 'A'
+        # Path that moves horizontally first
+        hPath = lambda v: '>' * v.dc + '<' * -v.dc + 'v' * v.dr + '^' * -v.dr + 'A'
+        # Path that moves vertically first
+        vPath = lambda v: 'v' * v.dr + '^' * -v.dr + '>' * v.dc + '<' * -v.dc + 'A'
 
-                pos = endPos
+        count = 0
+        pos = grid['A']
+        for ch in code:
+            endPos = grid[ch]
+            delta = endPos - pos
+            hPos = pos + V(0, delta.dc)  # position after moving horizontally
+            vPos = pos + V(delta.dr, 0)  # position after moving vertically
 
-                count += recurse(steps, depth - 1)
+            count1 = self.Solve2(hPath(delta), depth - 1) if hPos != grid['X'] else math.inf
+            count2 = self.Solve2(vPath(delta), depth - 1) if vPos != grid['X'] else math.inf
 
-            return count
-        
-        count = -1  # No, I don't know why I'm off by 1.
-        parts = code.split('A')
-        for part in parts:
-            count += recurse(part + 'A', depth)
+            count += min(count1, count2)
+            pos = endPos
 
         return count
 
@@ -209,17 +201,16 @@ class Day21:
         answer = 0
 
         for line in self.lines:
-            route1 = self.Solve(self.doorGrid, line)
-            count = self.Solve2(self.arrowGrid, route1, 25)
+            count = self.Solve2(line, 26)
 
             print(f'{line}: {count}')
             answer += count * int(line[:-1])
 
         return answer
-    
+
 if __name__ == '__main__':
     problem = Day21()
-    
+
     answer1 = problem.Part1()
     print(f'Answer 1: {answer1}')
 
