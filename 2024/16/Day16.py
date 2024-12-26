@@ -9,11 +9,9 @@ the origin is in the upper left corner, coordinates are (row, col), and row incr
 downward.
 """
 
-import pprint
 import math
 import heapq
 from typing import NamedTuple
-from collections import deque
 
 class P(NamedTuple):
     """
@@ -125,67 +123,6 @@ class Day16:
                 elif ch == 'E':
                     self.goalPos = P(row, col)
 
-
-    def GetPath(self, prev, pos):
-        path = [pos]
-        for d in directions:
-            if (pos, d) in prev:
-                while (pos, d) in prev:
-                    pos, d = prev[pos, d]
-                    path.append(pos)
-                break
-
-        path.reverse()
-        pprint.pprint(path)
-        return path
-
-    def AStar(self, startPos, startDir, goal):
-        prev = {}
-        gScore = {}
-        fScore = {}
-        gScore[(startPos, startDir)] = 0
-
-        # Heuristic function is manhattan distance plus a guess at number of turns
-        h = lambda pos, dir: (
-            abs(pos.row - self.goalPos.row) + 
-            abs(pos.col - self.goalPos.col) +
-            2000 if (dir * (self.goalPos - pos) < 0) else 0)
-
-        fScore[(startPos, startDir)] = h(startPos, startDir)
-
-        heap = []
-        heapIndex = {}
-
-        entry = [fScore[(startPos, startDir)], startPos, startDir]
-        heapIndex[(startPos, startDir)] = entry
-        heapq.heappush(heap, entry)
-
-        while heap:
-            _, pos, dir = heapq.heappop(heap)
-            heapIndex.pop((pos, dir), None)
-            if pos == goal:
-                self.path1 = self.GetPath(prev, pos)
-                return gScore[(pos, dir)]
-            
-            for d in directions:
-                neighbor = pos + d
-                if neighbor in self.floor:
-                    cost = 1 if d == dir else 1001
-                    gTmp = gScore[(pos, dir)] + cost
-                    if gTmp < gScore.get((neighbor, d), math.inf):
-                        gScore[(neighbor, d)] = gTmp
-                        prev[(neighbor, d)] = (pos, dir)
-                        fTmp = fScore[(neighbor, d)] = gTmp + h(neighbor, d)
-                        if (neighbor, d) in heapIndex:
-                            entry = heapIndex[(neighbor, d)]
-                            if fTmp < entry[0]:
-                                entry[0] = fTmp
-                                heapq.heapify(heap)
-                        else:
-                            entry = [fTmp, neighbor, d]
-                            heapIndex[(neighbor, d)] = entry
-                            heapq.heappush(heap, entry)
-
     def Part1(self):
         answer = 0
         
@@ -266,6 +203,9 @@ class Day16:
         
         bestScore, bestState = min(answers)
 
+        # Scan backwards through the neighbors to find all of the states that
+        # could have contributed to a final answer.
+
         visited = set()
         todo = set([bestState])
 
@@ -289,24 +229,6 @@ class Day16:
         visitedPos = {pos for pos, dir in visited}
 
         answer = len(visitedPos)
-            # if nPos in self.floor:
-            #     tmpDist = 1 + dist[state]
-            #     if tmpDi
-            # for d in directions:
-            #     neighbor = pos + d
-            #     if neighbor in q:
-            #         cost = 1 if d == dir else 1001
-            #         tmpDist = dist[pos] + cost
-            #         if tmpDist < dist.get(neighbor, math.inf):
-            #             prev[neighbor] = pos
-            #             dist[neighbor] = tmpDist
-            #             if (neighbor, d) in heapIndex:
-            #                 heapIndex[neighbor, d][0] = tmpDist
-            #                 heapq.heapify(heap)
-            #             else:
-            #                 entry = [tmpDist, neighbor, d]
-            #                 heapq.heappush(heap, entry)
-            #                 heapIndex[neighbor, d] = entry
 
         return answer
     
