@@ -1,5 +1,6 @@
 /.session_key
 /2023/
+/.vscode
 input
 *.o
 *.dSYM
